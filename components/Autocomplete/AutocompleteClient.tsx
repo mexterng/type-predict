@@ -1,12 +1,14 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { pipeline, type TextGenerationPipeline } from '@huggingface/transformers'
 
 export default function AutocompleteClient() {
   const generatorRef = useRef<TextGenerationPipeline | null>(null)
 
   const contentEditableRef = useRef(null);
+
+  const [suggestionText, setSuggestionText] = useState("[suggestion]");
 
   // load model once on component mount
   useEffect(() => {
@@ -39,6 +41,13 @@ export default function AutocompleteClient() {
         onInput={handleInput}
       >
         {/* {userText} */}
+      </span>
+
+      <span
+        className="text-gray-600"
+        contentEditable={false}
+      >
+        { suggestionText }
       </span>
     </div>
   )
