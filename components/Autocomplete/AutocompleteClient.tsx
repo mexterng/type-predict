@@ -8,7 +8,7 @@ export default function AutocompleteClient() {
 
   const contentEditableRef = useRef(null);
 
-  const [suggestionText, setSuggestionText] = useState("[suggestion]");
+  const [suggestionText, setSuggestionText] = useState("");
 
   // load model once on component mount
   useEffect(() => {
@@ -27,8 +27,39 @@ export default function AutocompleteClient() {
 
   const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = event.target.innerText
-    console.log('current value:', newValue)
+    updateSuggestion(newValue);
   }
+
+  const updateSuggestion = (text: string) => {
+    getSuggestion(text)
+      .then((suggestion) => {
+        setSuggestionText(suggestion)
+      })
+      .catch((err) => console.error(err))
+  }
+
+  const getSuggestion = async (text: string): Promise<string> => {
+    if (!generatorRef.current) return ''
+
+    const rawResult = await generatorRef.current(text, {
+      max_new_tokens: 1,
+      do_sample: false,
+    })
+
+    // type correction: Treat result as an array
+    const firstResult = rawResult[0] as { generated_text: string } | undefined;
+
+    if (!firstResult?.generated_text) {
+      return "";
+    }
+
+    // extract generated text
+    const suggestion = firstResult.generated_text
+
+    // remove the already typed text
+    return suggestion.replace(text, '')
+  }
+
 
   return (
     <div
