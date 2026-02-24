@@ -12,6 +12,8 @@ export default function AutocompleteClient() {
   const [userText, setUserText] = useState("")
   const [suggestionText, setSuggestionText] = useState("")
 
+  const [maxTokens, setMaxTokens] = useState(1) // default 1 next token
+
   // load model once on component mount
   useEffect(() => {
     loadModel()
@@ -50,7 +52,7 @@ export default function AutocompleteClient() {
     if (!generatorRef.current || !text) return ''  // early exit if no model or empty text
 
     const rawResult = await generatorRef.current(text, {
-      max_new_tokens: 1,
+      max_new_tokens: maxTokens,
       do_sample: false,
     })
 
@@ -102,6 +104,19 @@ export default function AutocompleteClient() {
       {!isModelLoaded && (
         <div className="mt-2 text-sm text-gray-500">
           Lade KI-Modell für Autocomplete...
+        </div>
+      )}
+      {isModelLoaded && (
+        <div className="mb-2">
+          <label className="mr-2">Max Tokens:</label>
+          <input
+            type="number"
+            min={1}
+            max={10}
+            value={maxTokens}
+            onChange={(e) => setMaxTokens(Number(e.target.value))}
+            className="border rounded px-2 py-1 w-20"
+          />
         </div>
       )}
       <div
