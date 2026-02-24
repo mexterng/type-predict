@@ -9,7 +9,7 @@ export default function AutocompleteClient() {
   const contentEditableRef = useRef<HTMLSpanElement | null>(null)
 
   const [userText, setUserText] = useState("")
-  const [suggestionText, setSuggestionText] = useState("");
+  const [suggestionText, setSuggestionText] = useState("")
 
   // load model once on component mount
   useEffect(() => {
@@ -62,6 +62,16 @@ export default function AutocompleteClient() {
     return suggestion.replace(text, '')
   }
 
+  const setCursorToEnd = (element : HTMLSpanElement) => {
+    const range = document.createRange()
+    const selection = window.getSelection()
+    if (!selection) return  // early exit if null
+    range.selectNodeContents(element)
+    range.collapse(false) // false means collapse to end rather than the start
+    selection.removeAllRanges()
+    selection.addRange(range)
+  }
+
   const acceptSuggestion = () => {
     const contentEditableElement = contentEditableRef.current
     if (!contentEditableElement) return  // early exit if null
@@ -69,6 +79,7 @@ export default function AutocompleteClient() {
       setUserText(userText + suggestionText)
       contentEditableElement.innerText = userText + suggestionText
       setSuggestionText("")
+      setCursorToEnd(contentEditableElement)
     }
   }
 
