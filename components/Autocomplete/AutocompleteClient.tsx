@@ -10,12 +10,13 @@ export default function AutocompleteClient() {
   }, [])
 
   const loadModel = async () => {
-    generatorRef.current = await pipeline(
-        'text-generation',
-        'Xenova/distilgpt2',
-        { device: 'wasm' }
-      )
-      console.log('model loaded')
+    // initialize text-generation pipeline in the browser using WASM
+    generatorRef.current = (await pipeline(
+      'text-generation',
+      'Xenova/distilgpt2',
+      { device: 'wasm' }
+    )) as TextGenerationPipeline
+    console.log('model loaded')
   }
 
   return (
