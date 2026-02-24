@@ -8,6 +8,7 @@ export default function AutocompleteClient() {
 
   const contentEditableRef = useRef<HTMLSpanElement | null>(null)
 
+  const [isModelLoaded, setIsModelLoaded] = useState(false)
   const [userText, setUserText] = useState("")
   const [suggestionText, setSuggestionText] = useState("")
 
@@ -23,10 +24,11 @@ export default function AutocompleteClient() {
       'Xenova/distilgpt2',
       { device: 'wasm' }
     )) as TextGenerationPipeline
-    console.log('model loaded')
+    setIsModelLoaded(true)
   }
 
   const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isModelLoaded) return
     const newValue = event.target.innerText
     setUserText(newValue)
     if (newValue != "") {
@@ -88,6 +90,7 @@ export default function AutocompleteClient() {
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLSpanElement>) => {
+    if (!isModelLoaded) return
     if (event.key === "Tab") {
       event.preventDefault()
       acceptSuggestion()
@@ -95,25 +98,36 @@ export default function AutocompleteClient() {
   }
 
   return (
-    <div
-      className="p-3 border rounded-lg cursor-text text-left w-full h-[200px] mx-auto overflow-auto"
-    >
-      <span
-        ref={contentEditableRef}
-        className="outline-none"
-        contentEditable={true}
-        onInput={handleInput}
-        onKeyDown={handleKeyDown}
+    <div>
+      {!isModelLoaded && (
+        <div className="mt-2 text-sm text-gray-500">
+          Lade KI-Modell für Autocomplete...
+        </div>
+      )}
+      <div
+        className="p-3 border rounded-lg cursor-text text-left w-full h-[200px] mx-auto overflow-auto"
+        onClick={() => {
+          if (!isModelLoaded) return
+          contentEditableRef.current?.focus()
+        }}
       >
-        {/* {userText} */}
-      </span>
+        <span
+          ref={contentEditableRef}
+          className="outline-none"
+          contentEditable={isModelLoaded}
+          onInput={handleInput}
+          onKeyDown={handleKeyDown}
+        >
+          {/* {userText} */}
+        </span>
 
-      <span
-        className="text-gray-600"
-        contentEditable={false}
-      >
-        {suggestionText}
-      </span>
+        <span
+          className="text-gray-600"
+          contentEditable={false}
+        >
+          {suggestionText}
+        </span>
+      </div>
     </div>
   )
 }
