@@ -29,6 +29,18 @@ export default function AutocompleteClient() {
     setIsModelLoaded(true)
   }
 
+  const focusInputField = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!isModelLoaded) return // exit if model not loaded
+
+    const el = contentEditableRef.current
+    if (!el) return // exit if element missing
+    if (event.target === el) return // keep cursor at click position inside text
+
+    // focus the input and move cursor to end
+    el.focus()
+    setCursorToEnd(el)
+  }
+
   const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!isModelLoaded) return
     const newValue = event.target.innerText
@@ -121,10 +133,7 @@ export default function AutocompleteClient() {
       )}
       <div
         className="p-3 border rounded-lg cursor-text text-left w-full h-[200px] mx-auto overflow-auto"
-        onClick={() => {
-          if (!isModelLoaded) return
-          contentEditableRef.current?.focus()
-        }}
+        onClick={focusInputField}
       >
         <span
           ref={contentEditableRef}
