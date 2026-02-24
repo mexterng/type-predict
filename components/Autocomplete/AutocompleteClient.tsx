@@ -6,8 +6,9 @@ import { pipeline, type TextGenerationPipeline } from '@huggingface/transformers
 export default function AutocompleteClient() {
   const generatorRef = useRef<TextGenerationPipeline | null>(null)
 
-  const contentEditableRef = useRef(null);
+  const contentEditableRef = useRef<HTMLSpanElement | null>(null)
 
+  const [userText, setUserText] = useState("")
   const [suggestionText, setSuggestionText] = useState("");
 
   // load model once on component mount
@@ -27,6 +28,7 @@ export default function AutocompleteClient() {
 
   const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = event.target.innerText
+    setUserText(newValue)
     updateSuggestion(newValue);
   }
 
@@ -60,6 +62,22 @@ export default function AutocompleteClient() {
     return suggestion.replace(text, '')
   }
 
+  const acceptSuggestion = () => {
+    const contentEditableElement = contentEditableRef.current
+    if (!contentEditableElement) return  // early exit if null
+    if (suggestionText) {
+      setUserText(userText + suggestionText)
+      contentEditableElement.innerText = userText + suggestionText
+      setSuggestionText("")
+    }
+  }
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLSpanElement>) => {
+    if (event.key === "Tab") {
+      event.preventDefault()
+      acceptSuggestion()
+    }
+  }
 
   return (
     <div
@@ -70,6 +88,7 @@ export default function AutocompleteClient() {
         className="outline-none"
         contentEditable={true}
         onInput={handleInput}
+        onKeyDown={handleKeyDown}
       >
         {/* {userText} */}
       </span>
@@ -78,7 +97,7 @@ export default function AutocompleteClient() {
         className="text-gray-600"
         contentEditable={false}
       >
-        { suggestionText }
+        {suggestionText}
       </span>
     </div>
   )
