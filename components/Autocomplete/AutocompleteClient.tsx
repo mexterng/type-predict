@@ -29,7 +29,11 @@ export default function AutocompleteClient() {
   const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = event.target.innerText
     setUserText(newValue)
-    updateSuggestion(newValue);
+    if (newValue != "") {
+      updateSuggestion(newValue)
+    } else {
+      setSuggestionText("") // reset suggestion on empty input
+    }
   }
 
   const updateSuggestion = (text: string) => {
@@ -41,7 +45,7 @@ export default function AutocompleteClient() {
   }
 
   const getSuggestion = async (text: string): Promise<string> => {
-    if (!generatorRef.current) return ''
+    if (!generatorRef.current || !text) return ''  // early exit if no model or empty text
 
     const rawResult = await generatorRef.current(text, {
       max_new_tokens: 1,
