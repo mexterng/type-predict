@@ -21,6 +21,9 @@ export default function AutocompleteClient() {
   // --- Whisper Hook ---
   const {
     isModelLoaded: isWhisperReady,
+    startRecording,
+    isRecording,
+    stopRecording
   } = useWhisper()
 
   const focusInputField = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -68,6 +71,17 @@ export default function AutocompleteClient() {
     setCursorToEnd(cer)
   }
 
+  const handleRecorder = async () => {
+    if (isRecording) {
+      const recordedText = await stopRecording()
+      const newText = userText + recordedText
+      setUserText(newText)
+      updateContentEditable(newText)
+    } else {
+      startRecording()
+    }
+  }
+
   return (
     <div>
       {!isAutocompleteReady && (
@@ -97,8 +111,11 @@ export default function AutocompleteClient() {
       {/* Whisper Controls */}
       {isWhisperReady && (
         <div className="mb-2">
-          <button className="border px-3 py-1 rounded bg-gray-200"          >
-            Aufnehmen
+          <button
+            className="border px-3 py-1 rounded bg-gray-200"
+            onClick={handleRecorder}
+          >
+            {isRecording ? 'Aufnahme stoppen' : 'Aufnahme starten'}
           </button>
         </div>
       )}
