@@ -51,12 +51,15 @@ export default function AutocompleteClient() {
       event.preventDefault()
       const newText = acceptSuggestion()
       setUserText(newText)
-
-      if (contentEditableRef.current) {
-        contentEditableRef.current.innerText = newText
-        setCursorToEnd(contentEditableRef.current)
-      }
+      updateContentEditable(newText)
     }
+  }
+
+  const updateContentEditable = (text: string) => {
+    const cer = contentEditableRef.current
+    if (!cer) return
+    cer.innerText = text
+    setCursorToEnd(cer)
   }
 
   return (
