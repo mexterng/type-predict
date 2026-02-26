@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { useAutocomplete } from 'hooks/useAutocomplete'
+import { useWhisper } from 'hooks/useWhisper'
 
 export default function AutocompleteClient() {
   const contentEditableRef = useRef<HTMLSpanElement | null>(null)
@@ -12,13 +13,18 @@ export default function AutocompleteClient() {
 
   // Autocomplete Hook
   const {
-    isModelLoaded,
+    isModelLoaded: isAutocompleteReady,
     suggestionText,
     acceptSuggestion,
   } = useAutocomplete(maxTokens, userText)
 
+  // --- Whisper Hook ---
+  const {
+    isModelLoaded: isWhisperReady,
+  } = useWhisper()
+
   const focusInputField = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!isModelLoaded) return // exit if model not loaded
+    if (!isAutocompleteReady) return // exit if model not loaded
 
     const el = contentEditableRef.current
     if (!el) return // exit if element missing
@@ -30,7 +36,7 @@ export default function AutocompleteClient() {
   }
 
   const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!isModelLoaded) return
+    if (!isAutocompleteReady) return
     const newValue = event.target.innerText
     setUserText(newValue)
   }
@@ -46,7 +52,7 @@ export default function AutocompleteClient() {
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLSpanElement>) => {
-    if (!isModelLoaded) return
+    if (!isAutocompleteReady) return
     if (event.key === "Tab") {
       event.preventDefault()
       const newText = acceptSuggestion()
@@ -64,12 +70,12 @@ export default function AutocompleteClient() {
 
   return (
     <div>
-      {!isModelLoaded && (
+      {!isAutocompleteReady && (
         <div className="mt-2 text-sm text-gray-500">
           Lade KI-Modell für Autocomplete...
         </div>
       )}
-      {isModelLoaded && (
+      {isAutocompleteReady && (
         <div className="mb-2">
           <label className="mr-2">Max Tokens:</label>
           <input
@@ -82,6 +88,20 @@ export default function AutocompleteClient() {
           />
         </div>
       )}
+
+      {!isWhisperReady && (
+        <div className="mt-2 text-sm text-gray-500">
+          Lade KI-Modell für Spracheingabe...
+        </div>
+      )}
+      {/* Whisper Controls */}
+      {isWhisperReady && (
+        <div className="mb-2">
+          <button className="border px-3 py-1 rounded bg-gray-200"          >
+            Aufnehmen
+          </button>
+        </div>
+      )}
       <div
         className="p-3 border rounded-lg cursor-text text-left w-full h-[200px] mx-auto overflow-auto"
         onClick={focusInputField}
@@ -89,7 +109,7 @@ export default function AutocompleteClient() {
         <span
           ref={contentEditableRef}
           className="outline-none"
-          contentEditable={isModelLoaded}
+          contentEditable={isAutocompleteReady}
           onInput={handleInput}
           onKeyDown={handleKeyDown}
         >
