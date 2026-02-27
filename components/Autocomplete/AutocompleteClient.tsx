@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react'
 import { useAutocomplete } from 'hooks/useAutocomplete'
 import { useWhisper } from 'hooks/useWhisper'
+import { useTTS } from 'hooks/useTTS'
 
 export default function AutocompleteClient() {
   const contentEditableRef = useRef<HTMLSpanElement | null>(null)
@@ -25,6 +26,11 @@ export default function AutocompleteClient() {
     isRecording,
     stopRecording
   } = useWhisper()
+
+  // --- TTS Hook ---
+  const {
+    isModelLoaded: isTTSReady,
+  } = useTTS()
 
   const focusInputField = (event: React.MouseEvent<HTMLDivElement>) => {
     if (!isAutocompleteReady) return // exit if model not loaded
@@ -119,6 +125,21 @@ export default function AutocompleteClient() {
           </button>
         </div>
       )}
+
+      {!isTTSReady && (
+        <div className="mt-2 text-sm text-gray-500">
+          Lade KI-Modell für Sprachausgabe...
+        </div>
+      )}
+      {/* TTS Controls */}
+      {isTTSReady && (
+        <div className="mb-2">
+          <button className="border px-3 py-1 rounded bg-gray-200"          >
+            Vorlesen
+          </button>
+        </div>
+      )}
+
       <div
         className="p-3 border rounded-lg cursor-text text-left w-full h-[200px] mx-auto overflow-auto"
         onClick={focusInputField}
