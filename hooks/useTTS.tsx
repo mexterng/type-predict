@@ -8,8 +8,9 @@ export function useTTS() {
   const [isSpeaking, setIsSpeaking] = useState(false)
 
   const pipelineRef = useRef<TextToAudioPipeline | null>(null)
-  const audioContextRef = useRef<AudioContext | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null)
   const audioSourceRef = useRef<HTMLAudioElement | null>(null)
+  const speakerEmbeddingsRef = useRef<Float32Array | null>(null)
 
   // Load model once
   useEffect(() => {
@@ -20,6 +21,17 @@ export function useTTS() {
         { device: 'wasm' }
       ) as TextToAudioPipeline
 
+      // load speaker embeddings
+      try {
+        const url = 'https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/speaker_embeddings.bin'
+        const response = await fetch(url)
+        const arrayBuffer = await response.arrayBuffer()
+        speakerEmbeddingsRef.current = new Float32Array(arrayBuffer)
+      } catch (err) {
+        console.error('Failed to load speaker embeddings:', err)
+        speakerEmbeddingsRef.current = new Float32Array(512).fill(0.5) // fallback
+      }
+
       setIsModelLoaded(true)
     }
 
@@ -27,7 +39,7 @@ export function useTTS() {
   }, [])
 
   const startSpeaking = useCallback(async (text: string) => {
-    if (!pipelineRef.current || !text) return
+    if (!pipelineRef.current || !text || !speakerEmbeddingsRef.current) return
 
     // Stop any currently playing audio
     if (audioSourceRef.current) {
@@ -50,9 +62,8 @@ export function useTTS() {
 
     try {
       // Run TTS model
-      const demoSpeakerEmbedding = new Float32Array(512).fill(0.5)
-      const result = await pipelineRef.current(text, { speaker_embeddings: demoSpeakerEmbedding })
-      const { audio, sampling_rate } = result as { audio: Float32Array; sampling_rate: number }
+      const result = await pipelineRef.current(text, { speaker_embeddings: speakerEmbeddingsRef.current })
+      const { audio, sampling_rate } = result
 
       // Create an AudioBuffer from the float32 data
       const audioBuffer = audioContextRef.current.createBuffer(
