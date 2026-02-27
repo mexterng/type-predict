@@ -9,7 +9,7 @@ export function useTTS() {
 
   const pipelineRef = useRef<TextToAudioPipeline | null>(null)
   const audioContextRef = useRef<AudioContext | null>(null)
-  const audioSourceRef = useRef<HTMLAudioElement | null>(null)
+  const audioSourceRef = useRef<AudioBufferSourceNode | null>(null)
   const speakerEmbeddingsRef = useRef<Float32Array | null>(null)
 
   // Load model once
@@ -97,7 +97,8 @@ export function useTTS() {
 
   const stopSpeaking = useCallback(() => {
     if (!audioSourceRef.current) return
-    audioSourceRef.current.pause()
+    audioSourceRef.current.stop()
+    audioSourceRef.current.disconnect()
     audioSourceRef.current = null
     setIsSpeaking(false)
   }, [])
