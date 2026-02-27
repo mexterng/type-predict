@@ -24,7 +24,8 @@ export default function AutocompleteClient() {
     isModelLoaded: isWhisperReady,
     startRecording,
     isRecording,
-    stopRecording
+    stopRecording,
+    isConverting: isWhisperConverting
   } = useWhisper()
 
   // --- TTS Hook ---
@@ -32,6 +33,7 @@ export default function AutocompleteClient() {
     isModelLoaded: isTTSReady,
     startSpeaking,
     isSpeaking,
+    isConverting: isTTSConverting,
     stopSpeaking
   } = useTTS()
 
@@ -134,6 +136,11 @@ export default function AutocompleteClient() {
           >
             {isRecording ? 'Aufnahme stoppen' : 'Aufnahme starten'}
           </button>
+          {isWhisperConverting && (
+            <span className="mx-2 text-gray-500">
+              Konvertiere Sprache zu Text...
+            </span>
+          )}
         </div>
       )}
 
@@ -151,6 +158,11 @@ export default function AutocompleteClient() {
           >
             {isSpeaking ? 'Vorlesen stoppen' : 'Vorlesen starten'}
           </button>
+          {isTTSConverting && (
+            <span className="mx-2 text-gray-500">
+              Konvertiere Text zu Sprache...
+            </span>
+          )}
         </div>
       )}
 

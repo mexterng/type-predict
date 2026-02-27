@@ -5,6 +5,7 @@ import { pipeline, type TextToAudioPipeline } from '@huggingface/transformers'
 
 export function useTTS() {
   const [isModelLoaded, setIsModelLoaded] = useState(false)
+  const [isConverting, setIsConverting] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
 
   const pipelineRef = useRef<TextToAudioPipeline | null>(null)
@@ -62,6 +63,8 @@ export function useTTS() {
 
     try {
       // Run TTS model
+      setIsConverting(true)
+
       const result = await pipelineRef.current(text, { speaker_embeddings: speakerEmbeddingsRef.current })
       const { audio, sampling_rate } = result
 
@@ -86,11 +89,13 @@ export function useTTS() {
       }
 
       // Start playback
+      setIsConverting(false)
       source.start()
       audioSourceRef.current = source
 
     } catch (error) {
       console.error('TTS or playback error:', error)
+      setIsConverting(false)
       setIsSpeaking(false)
     }
   }, [])
@@ -107,6 +112,7 @@ export function useTTS() {
     // state
     isSpeaking,
     isModelLoaded,
+    isConverting,
 
     // actions
     startSpeaking,
