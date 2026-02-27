@@ -32,6 +32,7 @@ export default function AutocompleteClient() {
     isModelLoaded: isTTSReady,
     startSpeaking,
     isSpeaking,
+    isConverting: isTTSConverting,
     stopSpeaking
   } = useTTS()
 
@@ -151,6 +152,11 @@ export default function AutocompleteClient() {
           >
             {isSpeaking ? 'Vorlesen stoppen' : 'Vorlesen starten'}
           </button>
+          {isTTSConverting && (
+            <span className="mx-2 text-gray-500">
+              Konvertiere Text zu Sprache...
+            </span>
+          )}
         </div>
       )}
 
