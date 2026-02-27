@@ -5,6 +5,7 @@ import { pipeline, type AutomaticSpeechRecognitionPipeline } from '@huggingface/
 
 export function useWhisper() {
   const [isModelLoaded, setIsModelLoaded] = useState(false)
+  const [isConverting, setIsConverting] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
 
   const pipelineRef = useRef<AutomaticSpeechRecognitionPipeline | null>(null)
@@ -44,6 +45,8 @@ export function useWhisper() {
     return new Promise((resolve) => {
       const recorder = mediaRecorderRef.current
       if (!recorder) return resolve('')
+      
+      setIsConverting(true)
 
       recorder.onstop = async () => {
         const stream = recorder.stream
@@ -60,6 +63,7 @@ export function useWhisper() {
         const text = (result as { text: string }).text?.trim() ?? ''
 
         setIsRecording(false)
+        setIsConverting(false)
         resolve(text)
       }
 
@@ -71,6 +75,7 @@ export function useWhisper() {
     // state
     isRecording,
     isModelLoaded,
+    isConverting,
 
     // state setter
 
