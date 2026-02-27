@@ -30,6 +30,9 @@ export default function AutocompleteClient() {
   // --- TTS Hook ---
   const {
     isModelLoaded: isTTSReady,
+    startSpeaking,
+    isSpeaking,
+    stopSpeaking
   } = useTTS()
 
   const focusInputField = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -88,6 +91,14 @@ export default function AutocompleteClient() {
     }
   }
 
+  const handleSpeaker = async () => {
+    if (isSpeaking) {
+      stopSpeaking()
+    } else {
+      startSpeaking(userText)
+    }
+  }
+
   return (
     <div>
       {!isAutocompleteReady && (
@@ -134,8 +145,11 @@ export default function AutocompleteClient() {
       {/* TTS Controls */}
       {isTTSReady && (
         <div className="mb-2">
-          <button className="border px-3 py-1 rounded bg-gray-200"          >
-            Vorlesen
+          <button
+            className="border px-3 py-1 rounded bg-gray-200"
+            onClick={handleSpeaker}
+          >
+            {isSpeaking ? 'Vorlesen stoppen' : 'Vorlesen starten'}
           </button>
         </div>
       )}
